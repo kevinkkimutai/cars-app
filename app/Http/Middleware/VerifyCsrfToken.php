@@ -6,12 +6,27 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 
 class VerifyCsrfToken extends Middleware
 {
-    /**
-     * The URIs that should be excluded from CSRF verification.
+  /**
+     * Determine if the session and input CSRF tokens match.
      *
-     * @var array<int, string>
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
      */
-    protected $except = [
-        //
+
+     protected $except = [
+        '/cars',
+        '/cars/create',
     ];
+
+    protected function tokensMatch($request)
+    {
+
+        // Exclude the delete route from CSRF token check
+        if ($request->isMethod('delete') || $request->isMethod('put') || $request->isMethod('patch')) {
+            return true;
+        }
+
+        return parent::tokensMatch($request);
+    }
+
 }

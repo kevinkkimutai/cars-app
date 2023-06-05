@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Car extends Model
 {
     use HasFactory;
-    
-    protected $table = 'cars';
 
-    protected $primaryKey = 'id';
+    protected $fillable = [
+        'name',
+        'founded',
+        'description',
+    ];
 
-    public function carmodels() {
+
+    public function carModels () {
         return $this->hasMany(CarModel::class);
     }
 }

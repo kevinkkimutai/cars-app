@@ -16,6 +16,9 @@ class VerifyCsrfToken extends Middleware
      protected $except = [
         '/cars',
         '/cars/create',
+        '/carmodel',
+        '/carmodel/list',
+        '/carmodel/create',
     ];
 
     protected function tokensMatch($request)

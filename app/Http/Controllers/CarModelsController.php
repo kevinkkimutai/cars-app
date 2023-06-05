@@ -1,20 +1,23 @@
 <?php
 
+
 namespace App\Http\Controllers;
 
+use App\Models\Car;
 use App\Models\CarModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-class CarModelModelsController extends Controller
+
+class CarModelsController extends Controller
 {
-   /**
+    /**
      * Display a listing of the resource.
      */
     public function index()
     {
         $carModels = CarModel::all();
-
         return response()->json($carModels);
+
     }
 
     /**
@@ -22,7 +25,7 @@ class CarModelModelsController extends Controller
      */
     public function create()
     {
-        // You can return a view here to display the form for creating a new carModel
+        //
     }
 
     /**
@@ -31,81 +34,64 @@ class CarModelModelsController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required|string',
-            'founded' => 'required|string',
-            'description' => 'required|string',
+            'car_id' => 'required|exists:cars,id',
+            'odel_name' => 'required|string',
         ]);
 
-        $carModel = CarModel::create($validatedData);
+        $car = Car::find($validatedData['car_id']);
 
-        if($carModel) {
-            return response()->json(['message' => 'CarModel Added successfully', 'carModel' => $carModel]);
-        }else {
-
-            return response()->json(['message' => 'Something went wrong please try again']);
+        if (!$car) {
+            return response()->json(['message' => 'Car not found'], 404);
         }
 
-    }
+        $carModel = $car->carModels()->create($validatedData);
 
+        if ($carModel) {
+            return response()->json(['message' => 'Car Added successfully'], 201);
+        } else {
+            return response()->json(['message' => 'Something went wrong please try again'], 400);
+        }
+    }
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
         $carModel = CarModel::findOrFail($id);
-
         return response()->json($carModel);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        $carModel = CarModel::findOrFail($id);
-
-        // You can return a view here to display the form for editing the carModel
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'car_id' => 'exists:cars,id',
+            'model_name' => 'string',
+        ]);
 
-     public function update(Request $request, string $id)
-     {
-         $validatedData = $request->validate([
-             'name' => 'required|string',
-             'founded' => 'required|string',
-             'description' => 'required|string',
-         ]);
-
-         $carModel = CarModel::find($id);
-
-         if ($carModel) {
-             $carModel->update($validatedData);
-             return response()->json(['message' => 'CarModel updated successfully', 'carModel' => $carModel]);
-         } else {
-             return response()->json(['message' => 'CarModel not found'], Response::HTTP_NOT_FOUND);
-         }
-     }
-
+        $carModel = CarModel::findOrFail($id);
+        $carModel->update($validatedData);
+        return response()->json($carModel);
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $carModel = CarModel::find($id);
+        $carModel = CarModel::findOrFail($id);
+        $carModel->delete();
 
-        if ($carModel) {
-            $carModelName = $carModel->name; // Get the name of the deleted carModel
-            $carModel->delete();
-
-            return response()->json(['message' => 'CarModel '.$carModelName.' deleted successfully'])
-    ->header('Content-Type', 'application/json; charset=utf-8');
-
-        } else {
-            return response()->json(['message' => 'CarModel not found'], Response::HTTP_NOT_FOUND);
-        }
+        return response()->json(['message' => 'Car model deleted successfully'], Response::HTTP_NO_CONTENT);
     }
 }
